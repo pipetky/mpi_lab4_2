@@ -108,6 +108,7 @@ int main(int argc, char **argv) {
         cout << endl;
         //<задание 2>
         //отправка строк по процессам
+
         for (int i = 1; i < size; i++) {
             for (int j = i - 1; j < ROW; j += size - 1) {
                 cout << "send row " << j << ": ";
@@ -169,10 +170,39 @@ int main(int argc, char **argv) {
         }
         MPI_Send(&result, 1, MPI_INT, 0, 1, MPI_COMM_WORLD);
         //</задание 2>
-
     }
 
 
+    //<задание 2 лаб 4.2>
+    //расчет числа элементов для отправки в каждый процесс
+
+    int count;
+    int result_proc = 1;
+
+    if ((COL * ROW) % size){
+        count = COL * ROW / size + 1;
+    } else{
+        count = COL * ROW / size;
+    }
+    int *rbuf = new int[count];
+   //рассылка по частям и вычисление прозведения, в 0 тоже посылается
+    MPI_Scatter(matrix, count, MPI_INT, rbuf, count, MPI_INT, 0, MPI_COMM_WORLD);
+
+        for (int i = 0; i < count; i++) {
+            if (rbuf[i] >= -3 && rbuf[i] <= 3 && rbuf[i] != 0) {
+                result_proc *= rbuf[i];
+            }
+        }
+
+    //получение ответа от процессов и перемножение
+    MPI_Reduce(&result_proc, &result, 1,  MPI_INT, MPI_PROD, 0, MPI_COMM_WORLD);
+    if (rank == 0){
+        cout << "total result for lab 4.2 is " << result << endl;
+    }
+
+
+
+    //</задание 2 лаб 4.2>
     MPI_Finalize();
     return 0;
 }

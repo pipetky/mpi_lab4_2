@@ -1,5 +1,3 @@
-
-
 cmake_minimum_required(VERSION 3.13)
 project(mpi_lab4_2)
 include_directories(/usr/include/mpich/)
